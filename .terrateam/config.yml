@@ -1,10 +1,46 @@
 engine:
   name: tofu
   version: 1.11.2
+
+dirs:
+  dev:
+    tags: ["null", "dev"]
+  staging:
+    tags: ["null", "staging"]
+  production:
+    tags: ["null", "production"]
+    workspaces:
+      default:
+        tags: ["default"]
+
+stacks:
+  names:
+    dev:
+      tag_query: 'dev'
+      variables:
+        environment: development
+      rules:
+        auto_apply: true  # Auto-apply for rapid development
+
+    staging:
+      tag_query: 'staging'
+      variables:
+        environment: staging
+      rules:
+        apply_after:
+          - dev  # Can only apply after dev succeeds
+
+    production:
+      tag_query: 'production'
+      variables:
+        environment: production
+      rules:
+        apply_after:
+          - staging  # Requires staging to be applied first
+
 workflows:
   - tag_query: ""
     plan:
       - type: init
       - type: plan
       - type: checkov
-    
